@@ -19,6 +19,17 @@ Create conversational AI agents that can:
 
 All through natural conversation in a beautiful chat interface.
 
+### 🚀 Trading Features (Demo Mode)
+
+This starter also includes **autonomous trading capabilities** with simulated fund transfers:
+
+- 📊 **Market Analysis** - Real-time BTC, ETH, and crypto data
+- 🤖 **AI Trading Agent** - Autonomous trading with risk management
+- 💼 **Portfolio Management** - Stop-loss protection and position sizing
+- 📈 **Technical Indicators** - RSI, MACD, Bollinger Bands analysis
+
+> **⚠️ DEMO MODE**: Trading uses simulated fund transfers. No real money moves between Liminal and Binance. Perfect for testing trading logic and user experience!
+
 ---
 
 ## 🚀 5-Minute Quickstart

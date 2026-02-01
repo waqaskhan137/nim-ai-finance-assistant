@@ -18,8 +18,8 @@ import (
 // This is the public implementation used by external developers.
 type HTTPExecutor struct {
 	baseURL    string
-	apiKey     string  // Deprecated: use jwtToken
-	jwtToken   string  // JWT for Bearer authentication
+	apiKey     string // Deprecated: use jwtToken
+	jwtToken   string // JWT for Bearer authentication
 	httpClient *http.Client
 }
 
@@ -126,9 +126,16 @@ func (e *HTTPExecutor) doRequest(ctx context.Context, method, endpoint string, b
 		}
 		bodyReader = nil
 	} else if body != nil {
-		bodyBytes, err := json.Marshal(body)
-		if err != nil {
-			return nil, fmt.Errorf("failed to marshal request: %w", err)
+		// For POST requests, send only the Input field, not the whole ExecuteRequest
+		var bodyBytes []byte
+		var err error
+		if execReq, ok := body.(*core.ExecuteRequest); ok && len(execReq.Input) > 0 {
+			bodyBytes = execReq.Input
+		} else {
+			bodyBytes, err = json.Marshal(body)
+			if err != nil {
+				return nil, fmt.Errorf("failed to marshal request: %w", err)
+			}
 		}
 		bodyReader = bytes.NewReader(bodyBytes)
 	}

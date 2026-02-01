@@ -7,8 +7,9 @@ toolchain go1.23.4
 replace github.com/becomeliminal/nim-go-sdk => ../..
 
 require (
-	github.com/becomeliminal/nim-go-sdk v0.2.0
+	github.com/becomeliminal/nim-go-sdk v0.3.3
 	github.com/joho/godotenv v1.5.1
+	github.com/mattn/go-sqlite3 v1.14.33
 )
 
 require (

@@ -186,6 +186,19 @@ func (s *Server) Run(addr string) error {
 	return http.ListenAndServe(addr, nil)
 }
 
+// Broadcast sends a message to all active sessions for the given user.
+func (s *Server) Broadcast(userID string, msg ServerMessage) {
+	s.sessions.Range(func(key, value interface{}) bool {
+		conn := key.(*websocket.Conn)
+		sess := value.(*session)
+
+		if sess.UserID == userID {
+			s.send(conn, msg)
+		}
+		return true
+	})
+}
+
 // defaultLiminalAuthFunc returns a default authentication function for Liminal.
 // It extracts JWT tokens from requests and forwards them to the HTTPExecutor.
 func (s *Server) defaultLiminalAuthFunc() func(r *http.Request) (string, error) {
@@ -318,6 +331,7 @@ func (s *Server) handleNewConversation(ctx context.Context, conn *websocket.Conn
 func (s *Server) handleResumeConversation(ctx context.Context, conn *websocket.Conn, userID, conversationID string) *session {
 	conv, err := s.conversations.Get(ctx, conversationID)
 	if err != nil {
+		log.Printf("Failed to get conversation %s: %v", conversationID, err)
 		s.sendError(conn, "Conversation not found")
 		return nil
 	}
@@ -445,6 +459,7 @@ func (s *Server) handleConfirm(ctx context.Context, conn *websocket.Conn, sess *
 	// Get and remove confirmation
 	action, err := s.confirmations.Confirm(ctx, userID, actionID)
 	if err != nil {
+		log.Printf("ERROR: Confirmation not found or expired for action=%s: %v", actionID, err)
 		s.send(conn, ServerMessage{
 			Type:    "text",
 			Content: "That action expired. Would you like me to set it up again?",
@@ -453,20 +468,25 @@ func (s *Server) handleConfirm(ctx context.Context, conn *websocket.Conn, sess *
 		return
 	}
 
+	log.Printf("Executing tool=%s for action=%s with input=%s", action.Tool, actionID, string(action.Input))
+
 	// Execute the confirmed tool
 	result, err := s.engine.ExecuteTool(ctx, userID, action.Tool, action.Input, action.ID)
 
 	var resultContent string
 	var isError bool
 	if err != nil {
+		log.Printf("ERROR: Tool execution failed for %s: %v", action.Tool, err)
 		resultContent = fmt.Sprintf("Error: %v", err)
 		isError = true
 	} else if !result.Success {
+		log.Printf("ERROR: Tool returned failure for %s: %s", action.Tool, result.Error)
 		resultContent = result.Error
 		isError = true
 	} else {
 		resultBytes, _ := json.Marshal(result.Data)
 		resultContent = string(resultBytes)
+		log.Printf("SUCCESS: Tool %s executed, result: %s", action.Tool, resultContent)
 	}
 
 	// Add tool result to history
@@ -552,7 +572,30 @@ func formatToolResult(tool string, result interface{}) string {
 			return msg
 		}
 		if success, ok := r["success"].(bool); ok && success {
-			return "Done! " + tool + " completed successfully."
+			// Handle specific tool results with more detail
+			switch tool {
+			case "open_trade":
+				symbol, _ := r["symbol"].(string)
+				side, _ := r["side"].(string)
+				entryPrice, _ := r["entry_price"].(string)
+				quantity, _ := r["quantity"].(string)
+				posID, _ := r["position_id"].(string)
+				return fmt.Sprintf("Trade opened! %s %s position at %s (qty: %s, ID: %s)", side, symbol, entryPrice, quantity, posID)
+			case "close_trade":
+				symbol, _ := r["symbol"].(string)
+				pnl, _ := r["pnl"].(string)
+				return fmt.Sprintf("Position closed! %s with P&L: $%s", symbol, pnl)
+			case "close_all_trades":
+				closedCount, _ := r["positions_closed"].(float64)
+				totalPnL, _ := r["total_pnl"].(float64)
+				return fmt.Sprintf("All positions closed! %d trades, total P&L: $%.2f", int(closedCount), totalPnL)
+			default:
+				return "Done! " + tool + " completed successfully."
+			}
+		}
+		// Handle errors
+		if errMsg, ok := r["error"].(string); ok {
+			return "Failed: " + errMsg
 		}
 	}
 	return "Action completed."

@@ -1,0 +1,756 @@
+{
+  "wallet": {
+    "balance": 2547.83,
+    "currency": "USD",
+    "user_id": "demo_user_123",
+    "username": "@demo_user"
+  },
+  "savings": {
+    "total_balance": 1250.00,
+    "positions": [
+      {
+        "vault_id": "vault_001",
+        "vault_name": "High Yield Savings",
+        "amount": 1250.00,
+        "apy": 4.5,
+        "currency": "USD",
+        "deposited_at": "2025-12-15T10:30:00Z"
+      }
+    ]
+  },
+  "vault_rates": [
+    {
+      "vault_id": "vault_001",
+      "name": "High Yield Savings",
+      "apy": 4.5,
+      "risk": "low",
+      "min_deposit": 10
+    },
+    {
+      "vault_id": "vault_002",
+      "name": "Growth Fund",
+      "apy": 6.2,
+      "risk": "medium",
+      "min_deposit": 100
+    },
+    {
+      "vault_id": "vault_003",
+      "name": "Aggressive Growth",
+      "apy": 9.5,
+      "risk": "high",
+      "min_deposit": 500
+    }
+  ],
+  "profile": {
+    "user_id": "demo_user_123",
+    "username": "@demo_user",
+    "email": "demo@example.com",
+    "name": "Demo User",
+    "created_at": "2025-06-01T00:00:00Z"
+  },
+  "transactions": [
+    {
+      "id": "tx_001",
+      "type": "receive",
+      "amount": 2500.00,
+      "currency": "USD",
+      "sender": "@employer_inc",
+      "note": "Salary - January",
+      "created_at": "2026-01-15T09:00:00Z",
+      "category": "income"
+    },
+    {
+      "id": "tx_002",
+      "type": "receive",
+      "amount": 2500.00,
+      "currency": "USD",
+      "sender": "@employer_inc",
+      "note": "Salary - January",
+      "created_at": "2026-01-01T09:00:00Z",
+      "category": "income"
+    },
+    {
+      "id": "tx_003",
+      "type": "send",
+      "amount": 1200.00,
+      "currency": "USD",
+      "recipient": "@landlord",
+      "note": "Rent - January",
+      "created_at": "2026-01-01T10:00:00Z",
+      "category": "bills"
+    },
+    {
+      "id": "tx_004",
+      "type": "send",
+      "amount": 156.42,
+      "currency": "USD",
+      "recipient": "@electric_co",
+      "note": "Electricity bill",
+      "created_at": "2026-01-05T14:30:00Z",
+      "category": "bills"
+    },
+    {
+      "id": "tx_005",
+      "type": "send",
+      "amount": 79.99,
+      "currency": "USD",
+      "recipient": "@phone_carrier",
+      "note": "Phone bill",
+      "created_at": "2026-01-03T11:00:00Z",
+      "category": "bills"
+    },
+    {
+      "id": "tx_006",
+      "type": "send",
+      "amount": 65.00,
+      "currency": "USD",
+      "recipient": "@internet_provider",
+      "note": "Internet bill",
+      "created_at": "2026-01-02T09:00:00Z",
+      "category": "bills"
+    },
+    {
+      "id": "tx_007",
+      "type": "send",
+      "amount": 15.99,
+      "currency": "USD",
+      "recipient": "@netflix",
+      "note": "Netflix subscription",
+      "created_at": "2026-01-08T00:00:00Z",
+      "category": "entertainment"
+    },
+    {
+      "id": "tx_008",
+      "type": "send",
+      "amount": 9.99,
+      "currency": "USD",
+      "recipient": "@spotify",
+      "note": "Spotify Premium",
+      "created_at": "2026-01-08T00:00:00Z",
+      "category": "entertainment"
+    },
+    {
+      "id": "tx_009",
+      "type": "send",
+      "amount": 49.99,
+      "currency": "USD",
+      "recipient": "@gym_membership",
+      "note": "Monthly gym membership",
+      "created_at": "2026-01-01T00:00:00Z",
+      "category": "health"
+    },
+    {
+      "id": "tx_010",
+      "type": "send",
+      "amount": 127.54,
+      "currency": "USD",
+      "recipient": "@grocery_mart",
+      "note": "Weekly groceries",
+      "created_at": "2026-01-28T16:45:00Z",
+      "category": "food_dining"
+    },
+    {
+      "id": "tx_011",
+      "type": "send",
+      "amount": 98.32,
+      "currency": "USD",
+      "recipient": "@grocery_mart",
+      "note": "Weekly groceries",
+      "created_at": "2026-01-21T15:30:00Z",
+      "category": "food_dining"
+    },
+    {
+      "id": "tx_012",
+      "type": "send",
+      "amount": 112.87,
+      "currency": "USD",
+      "recipient": "@grocery_mart",
+      "note": "Weekly groceries",
+      "created_at": "2026-01-14T17:00:00Z",
+      "category": "food_dining"
+    },
+    {
+      "id": "tx_013",
+      "type": "send",
+      "amount": 89.43,
+      "currency": "USD",
+      "recipient": "@grocery_mart",
+      "note": "Weekly groceries",
+      "created_at": "2026-01-07T14:20:00Z",
+      "category": "food_dining"
+    },
+    {
+      "id": "tx_014",
+      "type": "send",
+      "amount": 5.75,
+      "currency": "USD",
+      "recipient": "@starbucks",
+      "note": "Morning coffee",
+      "created_at": "2026-01-31T08:15:00Z",
+      "category": "food_dining"
+    },
+    {
+      "id": "tx_015",
+      "type": "send",
+      "amount": 6.25,
+      "currency": "USD",
+      "recipient": "@starbucks",
+      "note": "Morning coffee",
+      "created_at": "2026-01-30T08:30:00Z",
+      "category": "food_dining"
+    },
+    {
+      "id": "tx_016",
+      "type": "send",
+      "amount": 5.50,
+      "currency": "USD",
+      "recipient": "@starbucks",
+      "note": "Morning coffee",
+      "created_at": "2026-01-29T08:10:00Z",
+      "category": "food_dining"
+    },
+    {
+      "id": "tx_017",
+      "type": "send",
+      "amount": 6.00,
+      "currency": "USD",
+      "recipient": "@starbucks",
+      "note": "Morning coffee",
+      "created_at": "2026-01-28T08:45:00Z",
+      "category": "food_dining"
+    },
+    {
+      "id": "tx_018",
+      "type": "send",
+      "amount": 5.75,
+      "currency": "USD",
+      "recipient": "@starbucks",
+      "note": "Morning coffee",
+      "created_at": "2026-01-27T08:20:00Z",
+      "category": "food_dining"
+    },
+    {
+      "id": "tx_019",
+      "type": "send",
+      "amount": 45.80,
+      "currency": "USD",
+      "recipient": "@chipotle",
+      "note": "Dinner with friends",
+      "created_at": "2026-01-26T19:30:00Z",
+      "category": "food_dining"
+    },
+    {
+      "id": "tx_020",
+      "type": "send",
+      "amount": 67.50,
+      "currency": "USD",
+      "recipient": "@italian_restaurant",
+      "note": "Date night",
+      "created_at": "2026-01-24T20:00:00Z",
+      "category": "food_dining"
+    },
+    {
+      "id": "tx_021",
+      "type": "send",
+      "amount": 32.45,
+      "currency": "USD",
+      "recipient": "@uber_eats",
+      "note": "Food delivery",
+      "created_at": "2026-01-22T18:45:00Z",
+      "category": "food_dining"
+    },
+    {
+      "id": "tx_022",
+      "type": "send",
+      "amount": 28.90,
+      "currency": "USD",
+      "recipient": "@uber",
+      "note": "Ride to downtown",
+      "created_at": "2026-01-25T14:00:00Z",
+      "category": "transportation"
+    },
+    {
+      "id": "tx_023",
+      "type": "send",
+      "amount": 18.50,
+      "currency": "USD",
+      "recipient": "@uber",
+      "note": "Ride home",
+      "created_at": "2026-01-25T23:30:00Z",
+      "category": "transportation"
+    },
+    {
+      "id": "tx_024",
+      "type": "send",
+      "amount": 52.40,
+      "currency": "USD",
+      "recipient": "@shell_gas",
+      "note": "Gas fill up",
+      "created_at": "2026-01-20T11:00:00Z",
+      "category": "transportation"
+    },
+    {
+      "id": "tx_025",
+      "type": "send",
+      "amount": 48.75,
+      "currency": "USD",
+      "recipient": "@shell_gas",
+      "note": "Gas fill up",
+      "created_at": "2026-01-06T15:30:00Z",
+      "category": "transportation"
+    },
+    {
+      "id": "tx_026",
+      "type": "send",
+      "amount": 89.99,
+      "currency": "USD",
+      "recipient": "@amazon",
+      "note": "Wireless earbuds",
+      "created_at": "2026-01-18T21:00:00Z",
+      "category": "shopping"
+    },
+    {
+      "id": "tx_027",
+      "type": "send",
+      "amount": 34.50,
+      "currency": "USD",
+      "recipient": "@amazon",
+      "note": "Books",
+      "created_at": "2026-01-12T16:00:00Z",
+      "category": "shopping"
+    },
+    {
+      "id": "tx_028",
+      "type": "send",
+      "amount": 156.00,
+      "currency": "USD",
+      "recipient": "@target",
+      "note": "Household items",
+      "created_at": "2026-01-10T13:00:00Z",
+      "category": "shopping"
+    },
+    {
+      "id": "tx_029",
+      "type": "send",
+      "amount": 25.00,
+      "currency": "USD",
+      "recipient": "@cvs_pharmacy",
+      "note": "Medicine",
+      "created_at": "2026-01-15T10:00:00Z",
+      "category": "health"
+    },
+    {
+      "id": "tx_030",
+      "type": "receive",
+      "amount": 500.00,
+      "currency": "USD",
+      "sender": "@freelance_client",
+      "note": "Freelance project payment",
+      "created_at": "2026-01-20T12:00:00Z",
+      "category": "income"
+    },
+    {
+      "id": "tx_031",
+      "type": "send",
+      "amount": 50.00,
+      "currency": "USD",
+      "recipient": "@alice",
+      "note": "Birthday gift",
+      "created_at": "2026-01-23T14:00:00Z",
+      "category": "transfers"
+    },
+    {
+      "id": "tx_032",
+      "type": "receive",
+      "amount": 35.00,
+      "currency": "USD",
+      "sender": "@bob",
+      "note": "Paid back for dinner",
+      "created_at": "2026-01-27T11:00:00Z",
+      "category": "transfers"
+    },
+    {
+      "id": "tx_033",
+      "type": "send",
+      "amount": 200.00,
+      "currency": "USD",
+      "recipient": "@savings_deposit",
+      "note": "Monthly savings",
+      "created_at": "2026-01-16T09:00:00Z",
+      "category": "savings"
+    },
+    {
+      "id": "tx_034",
+      "type": "send",
+      "amount": 42.99,
+      "currency": "USD",
+      "recipient": "@movie_theater",
+      "note": "Movie tickets",
+      "created_at": "2026-01-19T19:00:00Z",
+      "category": "entertainment"
+    },
+    {
+      "id": "tx_035",
+      "type": "send",
+      "amount": 14.99,
+      "currency": "USD",
+      "recipient": "@hbo_max",
+      "note": "HBO Max subscription",
+      "created_at": "2026-01-08T00:00:00Z",
+      "category": "entertainment"
+    },
+    {
+      "id": "tx_036",
+      "type": "send",
+      "amount": 15.99,
+      "currency": "USD",
+      "recipient": "@netflix",
+      "note": "Netflix subscription",
+      "created_at": "2025-12-08T00:00:00Z",
+      "category": "entertainment"
+    },
+    {
+      "id": "tx_037",
+      "type": "send",
+      "amount": 14.99,
+      "currency": "USD",
+      "recipient": "@netflix",
+      "note": "Netflix subscription",
+      "created_at": "2025-11-08T00:00:00Z",
+      "category": "entertainment"
+    },
+    {
+      "id": "tx_038",
+      "type": "send",
+      "amount": 14.99,
+      "currency": "USD",
+      "recipient": "@netflix",
+      "note": "Netflix subscription",
+      "created_at": "2025-10-08T00:00:00Z",
+      "category": "entertainment"
+    },
+    {
+      "id": "tx_039",
+      "type": "send",
+      "amount": 9.99,
+      "currency": "USD",
+      "recipient": "@spotify",
+      "note": "Spotify Premium",
+      "created_at": "2025-12-08T00:00:00Z",
+      "category": "entertainment"
+    },
+    {
+      "id": "tx_040",
+      "type": "send",
+      "amount": 9.99,
+      "currency": "USD",
+      "recipient": "@spotify",
+      "note": "Spotify Premium",
+      "created_at": "2025-11-08T00:00:00Z",
+      "category": "entertainment"
+    },
+    {
+      "id": "tx_041",
+      "type": "send",
+      "amount": 9.99,
+      "currency": "USD",
+      "recipient": "@spotify",
+      "note": "Spotify Premium",
+      "created_at": "2025-10-08T00:00:00Z",
+      "category": "entertainment"
+    },
+    {
+      "id": "tx_042",
+      "type": "send",
+      "amount": 14.99,
+      "currency": "USD",
+      "recipient": "@hbo_max",
+      "note": "HBO Max subscription",
+      "created_at": "2025-12-08T00:00:00Z",
+      "category": "entertainment"
+    },
+    {
+      "id": "tx_043",
+      "type": "send",
+      "amount": 14.99,
+      "currency": "USD",
+      "recipient": "@hbo_max",
+      "note": "HBO Max subscription",
+      "created_at": "2025-11-08T00:00:00Z",
+      "category": "entertainment"
+    },
+    {
+      "id": "tx_044",
+      "type": "send",
+      "amount": 49.99,
+      "currency": "USD",
+      "recipient": "@gym_membership",
+      "note": "Monthly gym membership",
+      "created_at": "2025-12-01T00:00:00Z",
+      "category": "health"
+    },
+    {
+      "id": "tx_045",
+      "type": "send",
+      "amount": 49.99,
+      "currency": "USD",
+      "recipient": "@gym_membership",
+      "note": "Monthly gym membership",
+      "created_at": "2025-11-01T00:00:00Z",
+      "category": "health"
+    },
+    {
+      "id": "tx_046",
+      "type": "send",
+      "amount": 49.99,
+      "currency": "USD",
+      "recipient": "@gym_membership",
+      "note": "Monthly gym membership",
+      "created_at": "2025-10-01T00:00:00Z",
+      "category": "health"
+    },
+    {
+      "id": "tx_047",
+      "type": "send",
+      "amount": 2.99,
+      "currency": "USD",
+      "recipient": "@icloud",
+      "note": "iCloud+ storage",
+      "created_at": "2026-01-15T00:00:00Z",
+      "category": "software"
+    },
+    {
+      "id": "tx_048",
+      "type": "send",
+      "amount": 2.99,
+      "currency": "USD",
+      "recipient": "@icloud",
+      "note": "iCloud+ storage",
+      "created_at": "2025-12-15T00:00:00Z",
+      "category": "software"
+    },
+    {
+      "id": "tx_049",
+      "type": "send",
+      "amount": 2.99,
+      "currency": "USD",
+      "recipient": "@icloud",
+      "note": "iCloud+ storage",
+      "created_at": "2025-11-15T00:00:00Z",
+      "category": "software"
+    },
+    {
+      "id": "tx_050",
+      "type": "send",
+      "amount": 2.99,
+      "currency": "USD",
+      "recipient": "@icloud",
+      "note": "iCloud+ storage",
+      "created_at": "2025-10-15T00:00:00Z",
+      "category": "software"
+    },
+    {
+      "id": "tx_051",
+      "type": "send",
+      "amount": 1200.00,
+      "currency": "USD",
+      "recipient": "@landlord",
+      "note": "Rent - December",
+      "created_at": "2025-12-01T10:00:00Z",
+      "category": "bills"
+    },
+    {
+      "id": "tx_052",
+      "type": "send",
+      "amount": 1200.00,
+      "currency": "USD",
+      "recipient": "@landlord",
+      "note": "Rent - November",
+      "created_at": "2025-11-01T10:00:00Z",
+      "category": "bills"
+    },
+    {
+      "id": "tx_053",
+      "type": "send",
+      "amount": 1200.00,
+      "currency": "USD",
+      "recipient": "@landlord",
+      "note": "Rent - October",
+      "created_at": "2025-10-01T10:00:00Z",
+      "category": "bills"
+    },
+    {
+      "id": "tx_054",
+      "type": "send",
+      "amount": 79.99,
+      "currency": "USD",
+      "recipient": "@phone_carrier",
+      "note": "Phone bill",
+      "created_at": "2025-12-03T11:00:00Z",
+      "category": "bills"
+    },
+    {
+      "id": "tx_055",
+      "type": "send",
+      "amount": 79.99,
+      "currency": "USD",
+      "recipient": "@phone_carrier",
+      "note": "Phone bill",
+      "created_at": "2025-11-03T11:00:00Z",
+      "category": "bills"
+    },
+    {
+      "id": "tx_056",
+      "type": "send",
+      "amount": 65.00,
+      "currency": "USD",
+      "recipient": "@internet_provider",
+      "note": "Internet bill",
+      "created_at": "2025-12-02T09:00:00Z",
+      "category": "bills"
+    },
+    {
+      "id": "tx_057",
+      "type": "send",
+      "amount": 65.00,
+      "currency": "USD",
+      "recipient": "@internet_provider",
+      "note": "Internet bill",
+      "created_at": "2025-11-02T09:00:00Z",
+      "category": "bills"
+    },
+    {
+      "id": "tx_058",
+      "type": "send",
+      "amount": 7.99,
+      "currency": "USD",
+      "recipient": "@disney_plus",
+      "note": "Disney+ subscription",
+      "created_at": "2025-09-10T00:00:00Z",
+      "category": "entertainment"
+    },
+    {
+      "id": "tx_059",
+      "type": "send",
+      "amount": 7.99,
+      "currency": "USD",
+      "recipient": "@disney_plus",
+      "note": "Disney+ subscription",
+      "created_at": "2025-08-10T00:00:00Z",
+      "category": "entertainment"
+    },
+    {
+      "id": "tx_060",
+      "type": "send",
+      "amount": 54.99,
+      "currency": "USD",
+      "recipient": "@adobe",
+      "note": "Adobe Creative Cloud",
+      "created_at": "2026-01-20T00:00:00Z",
+      "category": "software"
+    },
+    {
+      "id": "tx_061",
+      "type": "send",
+      "amount": 54.99,
+      "currency": "USD",
+      "recipient": "@adobe",
+      "note": "Adobe Creative Cloud",
+      "created_at": "2025-12-20T00:00:00Z",
+      "category": "software"
+    },
+    {
+      "id": "tx_062",
+      "type": "send",
+      "amount": 54.99,
+      "currency": "USD",
+      "recipient": "@adobe",
+      "note": "Adobe Creative Cloud",
+      "created_at": "2025-11-20T00:00:00Z",
+      "category": "software"
+    },
+    {
+      "id": "tx_063",
+      "type": "send",
+      "amount": 4.99,
+      "currency": "USD",
+      "recipient": "@nytimes",
+      "note": "NY Times Digital",
+      "created_at": "2026-01-05T00:00:00Z",
+      "category": "news"
+    },
+    {
+      "id": "tx_064",
+      "type": "send",
+      "amount": 4.99,
+      "currency": "USD",
+      "recipient": "@nytimes",
+      "note": "NY Times Digital",
+      "created_at": "2025-12-05T00:00:00Z",
+      "category": "news"
+    },
+    {
+      "id": "tx_065",
+      "type": "send",
+      "amount": 4.99,
+      "currency": "USD",
+      "recipient": "@nytimes",
+      "note": "NY Times Digital",
+      "created_at": "2025-11-05T00:00:00Z",
+      "category": "news"
+    }
+  ],
+  "spending_categories": {
+    "bills": {
+      "budget": 1600.00,
+      "color": "#EF4444",
+      "icon": "📄"
+    },
+    "food_dining": {
+      "budget": 600.00,
+      "color": "#F59E0B",
+      "icon": "🍔"
+    },
+    "transportation": {
+      "budget": 200.00,
+      "color": "#3B82F6",
+      "icon": "🚗"
+    },
+    "shopping": {
+      "budget": 300.00,
+      "color": "#8B5CF6",
+      "icon": "🛍️"
+    },
+    "entertainment": {
+      "budget": 150.00,
+      "color": "#EC4899",
+      "icon": "🎬"
+    },
+    "health": {
+      "budget": 100.00,
+      "color": "#10B981",
+      "icon": "💊"
+    },
+    "savings": {
+      "budget": 500.00,
+      "color": "#06B6D4",
+      "icon": "💰"
+    },
+    "transfers": {
+      "budget": 100.00,
+      "color": "#6B7280",
+      "icon": "↔️"
+    },
+    "income": {
+      "budget": 0,
+      "color": "#22C55E",
+      "icon": "💵"
+    }
+  },
+  "monthly_budgets": {
+    "total_income": 5500.00,
+    "total_budget": 3550.00,
+    "savings_goal": 500.00,
+    "emergency_fund_target": 16500.00
+  }
+}

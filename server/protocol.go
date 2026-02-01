@@ -20,6 +20,7 @@ type ServerMessage struct {
 	ConversationID string      `json:"conversationId,omitempty"`
 	Messages       interface{} `json:"messages,omitempty"`
 	TokenUsage     *TokenUsage `json:"tokenUsage,omitempty"`
+	Data           interface{} `json:"data,omitempty"` // Generic payload for custom events
 }
 
 // TokenUsage tracks Claude API token consumption.

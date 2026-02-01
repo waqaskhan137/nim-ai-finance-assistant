@@ -1,0 +1,6 @@
+# This file is used internally by FFMPEG.
+file 'file:/Users/apple/Dev/personal/hackathon/nim-go-sdk/animations/media/videos/nim_onboarding/480p15/partial_movie_files/NimFlowDiagram/3927554115_243564813_223132457.mp4'
+file 'file:/Users/apple/Dev/personal/hackathon/nim-go-sdk/animations/media/videos/nim_onboarding/480p15/partial_movie_files/NimFlowDiagram/3102962723_889677688_1499286423.mp4'
+file 'file:/Users/apple/Dev/personal/hackathon/nim-go-sdk/animations/media/videos/nim_onboarding/480p15/partial_movie_files/NimFlowDiagram/3102962723_1666685382_2023242080.mp4'
+file 'file:/Users/apple/Dev/personal/hackathon/nim-go-sdk/animations/media/videos/nim_onboarding/480p15/partial_movie_files/NimFlowDiagram/3102962723_629105564_422481422.mp4'
+file 'file:/Users/apple/Dev/personal/hackathon/nim-go-sdk/animations/media/videos/nim_onboarding/480p15/partial_movie_files/NimFlowDiagram/3102962723_2844360058_3479589194.mp4'

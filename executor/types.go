@@ -116,11 +116,11 @@ type ConversationSummary struct {
 }
 
 type GetConversationResponse struct {
-	ID        string         `json:"id"`
-	Title     string         `json:"title"`
-	Messages  []ChatMessage  `json:"messages"`
-	CreatedAt int64          `json:"createdAt"`
-	UpdatedAt int64          `json:"updatedAt"`
+	ID        string        `json:"id"`
+	Title     string        `json:"title"`
+	Messages  []ChatMessage `json:"messages"`
+	CreatedAt int64         `json:"createdAt"`
+	UpdatedAt int64         `json:"updatedAt"`
 }
 
 type ChatMessage struct {
