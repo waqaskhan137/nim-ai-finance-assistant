@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import './SubscriptionsPage.css'
 import { useToast } from './Toast'
 
@@ -50,8 +50,20 @@ export function SubscriptionsPage() {
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [filter, setFilter] = useState<'all' | 'forgotten'>('all')
+  const [expandedSub, setExpandedSub] = useState<string | null>(null)
   const toast = useToast()
+  const navigate = useNavigate()
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8081'
+
+  // Navigate to chat with pre-filled message
+  const askNim = (action: 'cancel' | 'review' | 'alternatives', subName: string) => {
+    const messages: Record<string, string> = {
+      cancel: `Help me cancel my ${subName} subscription`,
+      review: `Should I keep my ${subName} subscription? Analyze my usage.`,
+      alternatives: `What are some cheaper alternatives to ${subName}?`
+    }
+    navigate('/chat', { state: { autoMessage: messages[action] } })
+  }
 
   useEffect(() => { fetchData() }, [])
 
@@ -82,10 +94,15 @@ export function SubscriptionsPage() {
   if (loading) return (
     <div className="compact-page">
       <header className="compact-header">
-        <Link to="/" className="back-btn">←</Link>
-        <h1>Subscriptions</h1>
+        <div className="header-left">
+          <Link to="/" className="back-btn">←</Link>
+          <h1>Subscriptions</h1>
+        </div>
       </header>
-      <div className="loading-state">Loading...</div>
+      <div className="loading-state">
+        <div className="loading-spinner"></div>
+        <span>Analyzing subscriptions...</span>
+      </div>
     </div>
   )
 
@@ -101,7 +118,8 @@ export function SubscriptionsPage() {
           <h1>Subscriptions</h1>
         </div>
         <button className="refresh-btn" onClick={() => fetchData(true)} disabled={refreshing}>
-          {refreshing ? '...' : 'Refresh'}
+          {refreshing ? <span className="btn-spinner"></span> : null}
+          {refreshing ? 'Refreshing' : 'Refresh'}
         </button>
       </header>
 
@@ -138,12 +156,22 @@ export function SubscriptionsPage() {
         {/* Quick Recommendations */}
         {data.recommendations.length > 0 && (
           <div className="recs-banner">
-            {data.recommendations.slice(0, 2).map((rec, i) => (
-              <div key={i} className={`rec-pill ${rec.priority}`}>
+            {data.recommendations.slice(0, 3).map((rec, i) => (
+              <button 
+                key={i} 
+                className={`rec-pill ${rec.priority} clickable`}
+                onClick={() => navigate('/chat', { 
+                  state: { autoMessage: rec.type === 'cancel' 
+                    ? `Help me ${rec.title.toLowerCase()}` 
+                    : `${rec.title} - what should I do?` 
+                  } 
+                })}
+              >
                 <span>{rec.type === 'cancel' ? '🗑️' : '👀'}</span>
                 <span>{rec.title}</span>
                 {rec.savings && <span className="rec-save">Save {fmt(rec.savings)}</span>}
-              </div>
+                <span className="rec-arrow">→</span>
+              </button>
             ))}
           </div>
         )}
@@ -163,7 +191,11 @@ export function SubscriptionsPage() {
         {/* Subscriptions List */}
         <div className="subs-list">
           {subs.map(sub => (
-            <div key={sub.id} className={`sub-row ${sub.status !== 'active' ? 'inactive' : ''}`}>
+            <div 
+              key={sub.id} 
+              className={`sub-row ${sub.status !== 'active' ? 'inactive' : ''} ${expandedSub === sub.id ? 'expanded' : ''}`}
+              onClick={() => setExpandedSub(expandedSub === sub.id ? null : sub.id)}
+            >
               <div className="sub-icon" style={{ background: sub.color + '20', color: sub.color }}>
                 {sub.icon}
               </div>
@@ -175,6 +207,31 @@ export function SubscriptionsPage() {
                 <span className="sub-amount">{fmt(sub.amount)}</span>
                 <span className="sub-freq">{freqLabel(sub.frequency)}</span>
               </div>
+              <span className="sub-chevron">{expandedSub === sub.id ? '▼' : '›'}</span>
+              
+              {/* Expanded Actions */}
+              {expandedSub === sub.id && (
+                <div className="sub-actions" onClick={e => e.stopPropagation()}>
+                  <button 
+                    className="sub-action-btn cancel"
+                    onClick={() => askNim('cancel', sub.name)}
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    className="sub-action-btn review"
+                    onClick={() => askNim('review', sub.name)}
+                  >
+                    Review
+                  </button>
+                  <button 
+                    className="sub-action-btn alternatives"
+                    onClick={() => askNim('alternatives', sub.name)}
+                  >
+                    Alternatives
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -194,6 +251,25 @@ export function SubscriptionsPage() {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Ask Nim CTA */}
+        <div className="ask-nim-cta" style={{ gridColumn: '1 / -1' }}>
+          <div className="cta-content">
+            <span className="cta-icon">💬</span>
+            <div className="cta-text">
+              <strong>Need help managing subscriptions?</strong>
+              <span>Nim can analyze usage, find savings, and help you cancel.</span>
+            </div>
+          </div>
+          <button 
+            className="cta-button"
+            onClick={() => navigate('/chat', { 
+              state: { autoMessage: 'Analyze all my subscriptions and tell me which ones I should cancel to save money' } 
+            })}
+          >
+            Ask Nim
+          </button>
         </div>
       </div>
     </div>
