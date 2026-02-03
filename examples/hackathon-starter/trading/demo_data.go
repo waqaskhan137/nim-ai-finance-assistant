@@ -62,6 +62,15 @@ type DemoWalletData struct {
 		Color  string  `json:"color"`
 		Icon   string  `json:"icon"`
 	} `json:"spending_categories"`
+	EmergencyFund struct {
+		Current         float64 `json:"current"`
+		Stage1Target    float64 `json:"stage_1_target"`
+		Stage2Target    float64 `json:"stage_2_target"`
+		Stage3Target    float64 `json:"stage_3_target"`
+		CurrentStage    int     `json:"current_stage"`
+		MonthlyExpenses float64 `json:"monthly_expenses"`
+		UpdatedAt       string  `json:"updated_at"`
+	} `json:"emergency_fund"`
 	MonthlyBudgets struct {
 		TotalIncome         float64 `json:"total_income"`
 		TotalBudget         float64 `json:"total_budget"`

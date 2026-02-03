@@ -747,6 +747,15 @@
       "icon": "💵"
     }
   },
+  "emergency_fund": {
+    "current": 1775.00,
+    "stage_1_target": 1775.00,
+    "stage_2_target": 3550.00,
+    "stage_3_target": 10650.00,
+    "current_stage": 1,
+    "monthly_expenses": 3550.00,
+    "updated_at": "2026-02-01T00:00:00Z"
+  },
   "monthly_budgets": {
     "total_income": 5500.00,
     "total_budget": 3550.00,

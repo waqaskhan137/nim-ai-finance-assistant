@@ -79,6 +79,7 @@ func main() {
 			log.Println("✅ Journey schema initialized (user plans, budgets, savings rules, emergency funds)")
 		}
 	}
+	seedDemoEmergencyFund(globalTradingSystem.DB)
 
 	// ============================================================================
 	// SQLITE CONVERSATION STORE (Persistent Chat History)
@@ -117,6 +118,10 @@ func main() {
 	// ============================================================================
 	srv.AddTools(tools.LiminalTools(liminalExecutor)...)
 	log.Println("✅ Added 9 Liminal banking tools")
+	if trading.DemoMode {
+		srv.AddTools(trading.DemoLiminalTools()...)
+		log.Println("✅ Added demo Liminal tools (mock balance, savings, transactions, profile)")
+	}
 
 	// ============================================================================
 	// ADD TRADING TOOLS
@@ -1068,6 +1073,13 @@ When user asks about trading:
 3. If Stage 1 complete, use get_investment_surplus to see available funds
 4. Only invest SURPLUS - never touch emergency fund or budget
 
+If user says "trade $X" or "invest $X":
+1. get_emergency_fund_status
+2. If Stage 1 complete, call allocate_trading_budget with amount=X
+   - Default stop_loss_floor to 80% of amount if not provided
+   - Default risk_profile to moderate if not provided
+3. After allocation, call get_trading_status
+
 **Step 6: Autopilot**
 Tools: get_weekly_digest, approve_pending_action
 
@@ -1144,6 +1156,9 @@ User: "What's my budget status?"
 User: "I'm ready to invest"
 → 1) get_emergency_fund_status 2) If Stage 1 complete: get_investment_surplus 3) Recommend core (80%) vs explore (20%) allocation
 
+User: "trade $50"
+→ 1) get_emergency_fund_status 2) If Stage 1 complete: allocate_trading_budget (amount=50, stop_loss_floor=40, risk_profile=moderate) 3) get_trading_status
+
 Remember: You're guiding users on a JOURNEY. Meet them where they are, celebrate their progress, and always protect their financial foundation!`
 
 // ============================================================================
@@ -1155,6 +1170,85 @@ func getDemoModeMessage() string {
 		return "Demo mode ENABLED - using mock transaction data for testing"
 	}
 	return "Demo mode DISABLED - using real Liminal API data"
+}
+
+func seedDemoEmergencyFund(db *trading.Database) {
+	if db == nil || !trading.DemoMode {
+		return
+	}
+
+	userID := "user"
+	if existing, err := db.GetEmergencyFund(userID); err != nil {
+		log.Printf("⚠️ Failed to read emergency fund status: %v", err)
+	} else if existing != nil && existing.CurrentStage >= 1 {
+		return
+	}
+
+	demoData, err := trading.LoadDemoDataFromFile()
+	if err != nil {
+		log.Printf("⚠️ Failed to load demo data for emergency fund seeding: %v", err)
+		return
+	}
+
+	monthlyExpenses := demoData.EmergencyFund.MonthlyExpenses
+	if monthlyExpenses == 0 {
+		if demoData.MonthlyBudgets.TotalBudget > 0 {
+			monthlyExpenses = demoData.MonthlyBudgets.TotalBudget
+		} else if demoData.MonthlyBudgets.TotalIncome > 0 {
+			monthlyExpenses = demoData.MonthlyBudgets.TotalIncome
+		}
+	}
+
+	stage1Target := demoData.EmergencyFund.Stage1Target
+	stage2Target := demoData.EmergencyFund.Stage2Target
+	stage3Target := demoData.EmergencyFund.Stage3Target
+	if stage1Target == 0 || stage2Target == 0 || stage3Target == 0 {
+		if monthlyExpenses > 0 {
+			stage1Target, stage2Target, stage3Target = trading.CalculateEmergencyFundTargets(monthlyExpenses)
+		}
+	}
+
+	if stage1Target == 0 {
+		log.Printf("⚠️ Demo emergency fund targets unavailable; skipping seed")
+		return
+	}
+
+	current := demoData.EmergencyFund.Current
+	if current == 0 {
+		current = stage1Target
+	}
+
+	currentStage := demoData.EmergencyFund.CurrentStage
+	if currentStage == 0 {
+		switch {
+		case current >= stage3Target:
+			currentStage = 3
+		case current >= stage2Target:
+			currentStage = 2
+		case current >= stage1Target:
+			currentStage = 1
+		default:
+			currentStage = 0
+		}
+	}
+
+	ef := &trading.EmergencyFund{
+		UserID:          userID,
+		Current:         current,
+		Stage1Target:    stage1Target,
+		Stage2Target:    stage2Target,
+		Stage3Target:    stage3Target,
+		CurrentStage:    currentStage,
+		MonthlyExpenses: monthlyExpenses,
+		UpdatedAt:       time.Now(),
+	}
+
+	if err := db.SaveEmergencyFund(ef); err != nil {
+		log.Printf("⚠️ Failed to seed demo emergency fund: %v", err)
+		return
+	}
+
+	log.Printf("✅ Seeded demo emergency fund (stage %d)", currentStage)
 }
 
 // ============================================================================

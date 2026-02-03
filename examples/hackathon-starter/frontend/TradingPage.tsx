@@ -187,6 +187,7 @@ export function TradingPage() {
 
   // Initialize chart
   useEffect(() => {
+    if (journeyLoading || !isInvestingUnlocked || chartRef.current) return
     if (!chartContainerRef.current) return
 
     const chart = createChart(chartContainerRef.current, {
@@ -238,8 +239,10 @@ export function TradingPage() {
     return () => {
       window.removeEventListener('resize', handleResize)
       chart.remove()
+      chartRef.current = null
+      candleSeriesRef.current = null
     }
-  }, [])
+  }, [isInvestingUnlocked, journeyLoading])
 
   // Fetch candlestick data
   useEffect(() => {

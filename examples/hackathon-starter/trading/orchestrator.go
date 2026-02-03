@@ -114,7 +114,6 @@ func (ts *TradingSystem) GetAllTools() []core.Tool {
 		CreateGetPortfolioStatusTool(ts.Portfolio),
 		CreateOpenPositionTool(ts.Portfolio),
 		CreateClosePositionTool(ts.Portfolio),
-		CreateCloseAllTradesTool(ts.Portfolio),
 	}
 
 	return tools

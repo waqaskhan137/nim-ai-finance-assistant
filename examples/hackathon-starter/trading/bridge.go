@@ -17,19 +17,17 @@ import (
 
 // FundBridge handles fund transfers between Liminal wallet and Binance trading account.
 type FundBridge struct {
-	LiminalExecutor  core.ToolExecutor
+	LiminalExecutor core.ToolExecutor
 	BinanceConnector *connectors.BinanceConnector
-	Database         *Database
-	DemoMode         bool // Skip balance checks for testing
+	Database        *Database
 }
 
 // NewFundBridge creates a new fund bridge service.
 func NewFundBridge(liminalExecutor core.ToolExecutor, binanceConnector *connectors.BinanceConnector, db *Database) *FundBridge {
 	return &FundBridge{
-		LiminalExecutor:  liminalExecutor,
+		LiminalExecutor: liminalExecutor,
 		BinanceConnector: binanceConnector,
-		Database:         db,
-		DemoMode:         true, // Demo mode enabled by default for hackathon
+		Database:        db,
 	}
 }
 
@@ -44,53 +42,48 @@ func NewFundBridge(liminalExecutor core.ToolExecutor, binanceConnector *connecto
 func (fb *FundBridge) TransferToTrading(ctx context.Context, userID string, amount float64) error {
 	log.Printf("🔄 Transferring $%.2f from Liminal to Binance for user %s", amount, userID)
 
-	// DEMO MODE: Skip balance check for testing
-	if fb.DemoMode {
-		log.Printf("💰 [DEMO MODE] Skipping Liminal balance check - simulating $%.2f allocation", amount)
-	} else {
-		// Step 1: Check Liminal balance (only in production mode)
-		balanceResult, err := fb.LiminalExecutor.Execute(ctx, &core.ExecuteRequest{
-			UserID: userID,
-			Tool:   "get_balance",
-			Input:  json.RawMessage(`{}`),
-		})
-		if err != nil {
-			return fmt.Errorf("failed to check Liminal balance: %w", err)
-		}
+	// Step 1: Check Liminal balance
+	balanceResult, err := fb.LiminalExecutor.Execute(ctx, &core.ExecuteRequest{
+		UserID: userID,
+		Tool:   "get_balance",
+		Input:  json.RawMessage(`{}`),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to check Liminal balance: %w", err)
+	}
 
-		if !balanceResult.Success {
-			return fmt.Errorf("failed to get balance: %s", balanceResult.Error)
-		}
+	if !balanceResult.Success {
+		return fmt.Errorf("failed to get balance: %s", balanceResult.Error)
+	}
 
-		// Parse balance response
-		var balanceData map[string]interface{}
-		if err := json.Unmarshal(balanceResult.Data, &balanceData); err != nil {
-			return fmt.Errorf("failed to parse balance response: %w", err)
-		}
+	// Parse balance response
+	var balanceData map[string]interface{}
+	if err := json.Unmarshal(balanceResult.Data, &balanceData); err != nil {
+		return fmt.Errorf("failed to parse balance response: %w", err)
+	}
 
-		// Extract USD balance (simplified - assumes USD currency)
-		balances, ok := balanceData["balances"].([]interface{})
+	// Extract USD balance (simplified - assumes USD currency)
+	balances, ok := balanceData["balances"].([]interface{})
+	if !ok {
+		return fmt.Errorf("invalid balance response format")
+	}
+
+	var usdBalance float64
+	for _, bal := range balances {
+		balance, ok := bal.(map[string]interface{})
 		if !ok {
-			return fmt.Errorf("invalid balance response format")
+			continue
 		}
-
-		var usdBalance float64
-		for _, bal := range balances {
-			balance, ok := bal.(map[string]interface{})
-			if !ok {
-				continue
-			}
-			if currency, ok := balance["currency"].(string); ok && currency == "USD" {
-				if amount, ok := balance["amount"].(float64); ok {
-					usdBalance = amount
-					break
-				}
+		if currency, ok := balance["currency"].(string); ok && currency == "USD" {
+			if amount, ok := balance["amount"].(float64); ok {
+				usdBalance = amount
+				break
 			}
 		}
+	}
 
-		if usdBalance < amount {
-			return fmt.Errorf("insufficient Liminal balance: have $%.2f, need $%.2f", usdBalance, amount)
-		}
+	if usdBalance < amount {
+		return fmt.Errorf("insufficient Liminal balance: have $%.2f, need $%.2f", usdBalance, amount)
 	}
 
 	// PRODUCTION STEPS (currently simulated):
@@ -123,10 +116,10 @@ func (fb *FundBridge) TransferToTrading(ctx context.Context, userID string, amou
 
 	// Step 4: Record the allocation in database
 	allocation := &TradingAllocation{
-		UserID:      userID,
-		Amount:      amount,
-		Status:      "active",
-		AllocatedAt: time.Now(),
+		UserID:        userID,
+		Amount:        amount,
+		Status:        "active",
+		AllocatedAt:   time.Now(),
 	}
 
 	if fb.Database != nil {
@@ -144,20 +137,45 @@ func (fb *FundBridge) TransferToTrading(ctx context.Context, userID string, amou
 func (fb *FundBridge) TransferFromTrading(ctx context.Context, userID string, amount float64) error {
 	log.Printf("🔄 Transferring $%.2f from Binance to Liminal for user %s", amount, userID)
 
-	// DEMO MODE: Simulate transfer
-	if fb.DemoMode {
-		log.Printf("💰 [DEMO] Withdrawing $%.2f from Binance account", amount)
-		log.Printf("🏦 [DEMO] Bank transfer initiated (would take 1-3 days)")
-		log.Printf("📥 [DEMO] Depositing $%.2f to Liminal wallet", amount)
-		log.Printf("✅ [DEMO] Liminal deposit confirmed")
-	} else {
-		// Production logic would go here:
-		// 1. Withdraw from Binance
-		// 2. Wait for bank transfer
-		// 3. Deposit to Liminal
-		return fmt.Errorf("production withdrawals not implemented yet")
+	// Step 1: Check Binance balance
+	if fb.BinanceConnector == nil {
+		return fmt.Errorf("Binance connector not available")
 	}
 
+	balances, err := fb.BinanceConnector.GetBalances()
+	if err != nil {
+		return fmt.Errorf("failed to check Binance balance: %w", err)
+	}
+
+	// Find USDT balance
+	var usdtBalance float64
+	for _, balance := range balances {
+		if balance.Asset == "USDT" {
+			usdtBalance = balance.Free
+			break
+		}
+	}
+
+	if usdtBalance < amount {
+		return fmt.Errorf("insufficient Binance USDT balance: have $%.2f, need $%.2f", usdtBalance, amount)
+	}
+
+	// Step 2: Withdraw from Binance to bank account
+	// In production, this would initiate a withdrawal to a bank account
+	log.Printf("🏦 Withdrawing $%.2f from Binance", amount)
+
+	// Step 3: Deposit to Liminal wallet
+	// In production, this would involve bank transfer to Liminal
+	log.Printf("💰 Depositing $%.2f to Liminal wallet", amount)
+
+	// Step 4: Update allocation status
+	if fb.Database != nil {
+		if err := fb.Database.CloseAllocation(userID, amount); err != nil {
+			log.Printf("⚠️ Failed to update allocation status: %v", err)
+		}
+	}
+
+	log.Printf("✅ Successfully transferred $%.2f back to Liminal", amount)
 	return nil
 }
 

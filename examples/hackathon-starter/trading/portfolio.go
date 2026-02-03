@@ -109,7 +109,7 @@ func NewPortfolio(budget, stopLossFloor float64, riskProfileName string, market 
 		profile = PredefinedRiskProfiles["conservative"]
 	}
 
-	p := &Portfolio{
+	return &Portfolio{
 		InitialBudget: budget,
 		StopLossFloor: stopLossFloor,
 		CurrentCash:   budget,
@@ -119,41 +119,6 @@ func NewPortfolio(budget, stopLossFloor float64, riskProfileName string, market 
 		market:        market,
 		db:            db,
 	}
-
-	// Restore state from DB if available
-	if db != nil {
-		// 1. Restore open positions
-		positions, err := db.GetOpenPositions()
-		if err == nil && len(positions) > 0 {
-			for i := range positions {
-				p.Positions[positions[i].ID] = &positions[i]
-			}
-			fmt.Printf("✅ Restored %d open positions from database\n", len(positions))
-		}
-
-		// 2. Restore active allocation/budget
-		allocation, err := db.GetAllocation("user123") // TODO: real user ID
-		if err == nil && allocation != nil && allocation.Status == "active" {
-			p.InitialBudget = allocation.Amount
-			p.StopLossFloor = allocation.StopLossFloor
-
-			// Recalculate cash: Initial - Cost of Open Positions
-			usedCash := 0.0
-			for _, pos := range p.Positions {
-				usedCash += pos.EntryPrice * pos.Quantity
-			}
-			p.CurrentCash = p.InitialBudget - usedCash
-
-			// Restore risk profile
-			if rp, ok := PredefinedRiskProfiles[allocation.RiskProfile]; ok {
-				p.RiskProfile = rp
-			}
-
-			fmt.Printf("✅ Restored active allocation: $%.2f budget, $%.2f cash\n", p.InitialBudget, p.CurrentCash)
-		}
-	}
-
-	return p
 }
 
 // GetTotalValue returns current portfolio value (cash + positions).
@@ -193,15 +158,10 @@ func (p *Portfolio) CanTrade(amount float64) (bool, string) {
 		return false, fmt.Sprintf("Portfolio at stop-loss floor ($%.2f). No trading allowed.", p.StopLossFloor)
 	}
 
-	// Check if trade risk would breach floor
-	// We calculate risk as the amount that would be lost if stop loss is hit
-	// Plus a safety buffer (e.g., 10% extra slippage on the loss)
-	riskAmount := amount * p.RiskProfile.StopLossPct * 1.1
-
-	if totalValue-riskAmount < p.StopLossFloor {
-		maxRisk := totalValue - p.StopLossFloor
-		maxTrade := maxRisk / (p.RiskProfile.StopLossPct * 1.1)
-		return false, fmt.Sprintf("Trade risk too high for floor. Max allowed: $%.2f (Risk: $%.2f)", maxTrade, maxRisk)
+	// Check if trade would breach floor
+	if totalValue-amount < p.StopLossFloor {
+		maxTrade := totalValue - p.StopLossFloor
+		return false, fmt.Sprintf("Trade too large. Max allowed: $%.2f to maintain floor.", maxTrade)
 	}
 
 	// Check position size limit
@@ -216,19 +176,6 @@ func (p *Portfolio) CanTrade(amount float64) (bool, string) {
 	}
 
 	return true, "OK"
-}
-
-// Withdraw removes funds from the portfolio (e.g., for profit taking).
-func (p *Portfolio) Withdraw(amount float64) error {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-
-	if amount > p.CurrentCash {
-		return fmt.Errorf("insufficient cash: have $%.2f, need $%.2f", p.CurrentCash, amount)
-	}
-
-	p.CurrentCash -= amount
-	return nil
 }
 
 // OpenPosition opens a new trading position.
@@ -376,81 +323,21 @@ func (p *Portfolio) CheckStopLoss() []Trade {
 
 // EmergencyLiquidate closes all positions (used when hitting floor).
 func (p *Portfolio) EmergencyLiquidate() []Trade {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-
-	// Collect unique symbols first
-	symbols := make(map[string]bool)
-	for _, pos := range p.Positions {
-		symbols[pos.Symbol] = true
+	p.mu.RLock()
+	positionIDs := make([]string, 0, len(p.Positions))
+	for id := range p.Positions {
+		positionIDs = append(positionIDs, id)
 	}
+	p.mu.RUnlock()
 
-	// Fetch prices for all symbols (just 2-3 API calls instead of 22)
-	prices := make(map[string]float64)
-	for symbol := range symbols {
-		if price, err := p.market.GetPrice(symbol); err == nil {
-			prices[symbol] = price
-		}
-	}
-
-	// Close all positions using cached prices
 	trades := []Trade{}
-	for id, pos := range p.Positions {
-		price, ok := prices[pos.Symbol]
-		if !ok {
-			continue
+	for _, id := range positionIDs {
+		if trade, err := p.ClosePosition(id); err == nil {
+			trades = append(trades, *trade)
 		}
-
-		// Calculate P&L
-		var pnl float64
-		if pos.Side == "long" {
-			pnl = (price - pos.EntryPrice) * pos.Quantity
-		} else {
-			pnl = (pos.EntryPrice - price) * pos.Quantity
-		}
-
-		trade := Trade{
-			ID:         pos.ID,
-			Symbol:     pos.Symbol,
-			Side:       pos.Side,
-			EntryPrice: pos.EntryPrice,
-			ExitPrice:  price,
-			Quantity:   pos.Quantity,
-			PnL:        pnl,
-			OpenTime:   pos.OpenTime,
-			CloseTime:  time.Now(),
-		}
-
-		// Update portfolio
-		exitValue := pos.Quantity * price
-		p.CurrentCash += exitValue
-		p.TotalPnL += pnl
-
-		if pnl > 0 {
-			p.WinCount++
-		} else {
-			p.LossCount++
-		}
-
-		p.TradeHistory = append(p.TradeHistory, trade)
-		trades = append(trades, trade)
-
-		// Persist to database
-		if p.db != nil {
-			p.db.CloseTradeInDB(&trade)
-		}
-
-		delete(p.Positions, id)
 	}
 
 	return trades
-}
-
-// GetPositionCount returns the number of open positions.
-func (p *Portfolio) GetPositionCount() int {
-	p.mu.RLock()
-	defer p.mu.RUnlock()
-	return len(p.Positions)
 }
 
 // GetStatus returns current portfolio status.
@@ -505,25 +392,11 @@ func (p *Portfolio) GetStatus() map[string]interface{} {
 		status = "WARNING - Near floor"
 	}
 
-	// Determine if can trade and risk level
-	canTrade := totalValue > p.StopLossFloor && p.CurrentCash > 0
-	riskLevel := "low"
-	if floorPct < 10 {
-		riskLevel = "critical"
-	} else if floorPct < 20 {
-		riskLevel = "high"
-	} else if floorPct < 40 {
-		riskLevel = "medium"
-	}
-
 	return map[string]interface{}{
 		"status":            status,
 		"initial_budget":    p.InitialBudget,
 		"stop_loss_floor":   p.StopLossFloor,
 		"current_cash":      p.CurrentCash,
-		"available_cash":    p.CurrentCash, // Alias for auto-trader
-		"can_trade":         canTrade,
-		"risk_level":        riskLevel,
 		"total_value":       totalValue,
 		"total_pnl":         p.TotalPnL,
 		"pnl_percent":       pnlPct,
@@ -636,67 +509,6 @@ func CreateClosePositionTool(portfolio *Portfolio) core.Tool {
 				"entry_price": fmt.Sprintf("%.4f", trade.EntryPrice),
 				"exit_price":  fmt.Sprintf("%.4f", trade.ExitPrice),
 				"pnl":         fmt.Sprintf("%.2f", trade.PnL),
-			}, nil
-		}).
-		Build()
-}
-
-// CreateCloseAllTradesTool creates a tool to close ALL open positions at once.
-func CreateCloseAllTradesTool(portfolio *Portfolio) core.Tool {
-	return tools.New("close_all_trades").
-		Description("Close ALL open trading positions at once. This will liquidate your entire portfolio. Use when user wants to exit all trades or stop trading completely.").
-		RequiresConfirmation().
-		SummaryTemplate("Close ALL Open Positions").
-		Schema(tools.ObjectSchema(map[string]interface{}{
-			"confirm_close_all": tools.BooleanProperty("Must be true to confirm closing all positions"),
-		}, "confirm_close_all")).
-		HandlerFunc(func(ctx context.Context, input json.RawMessage) (interface{}, error) {
-			var params struct {
-				ConfirmCloseAll bool `json:"confirm_close_all"`
-			}
-			if err := json.Unmarshal(input, &params); err != nil {
-				return nil, err
-			}
-
-			if !params.ConfirmCloseAll {
-				return map[string]interface{}{
-					"success": false,
-					"error":   "Must set confirm_close_all to true",
-				}, nil
-			}
-
-			// Get position count before closing
-			positionCount := portfolio.GetPositionCount()
-
-			if positionCount == 0 {
-				return map[string]interface{}{
-					"success":       true,
-					"message":       "No open positions to close",
-					"trades_closed": 0,
-				}, nil
-			}
-
-			// Close all positions
-			trades := portfolio.EmergencyLiquidate()
-
-			// Calculate total P&L from closed trades
-			totalPnL := 0.0
-			summaries := []string{}
-			for _, trade := range trades {
-				totalPnL += trade.PnL
-				pnlStr := fmt.Sprintf("%.2f", trade.PnL)
-				if trade.PnL >= 0 {
-					pnlStr = "+" + pnlStr
-				}
-				summaries = append(summaries, fmt.Sprintf("%s: %s", trade.Symbol, pnlStr))
-			}
-
-			return map[string]interface{}{
-				"success":       true,
-				"trades_closed": len(trades),
-				"total_pnl":     fmt.Sprintf("%.2f", totalPnL),
-				"summaries":     summaries,
-				"message":       fmt.Sprintf("Successfully closed %d positions with total P&L: $%.2f", len(trades), totalPnL),
 			}, nil
 		}).
 		Build()

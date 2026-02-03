@@ -12,16 +12,16 @@ import (
 
 // TradingPreferences stores user trading preferences and settings.
 type TradingPreferences struct {
-	UserID         string     `json:"user_id"`
-	Assets         []string   `json:"assets"`                  // ["BTCUSDT", "ETHUSDT"]
-	Style          string     `json:"style"`                   // "day_trading", "swing", "hold"
-	RiskProfile    string     `json:"risk_profile"`            // "conservative", "moderate", "aggressive"
-	ProfitTarget   float64    `json:"profit_target"`           // e.g., 10% gain target
-	MaxLossPercent float64    `json:"max_loss_percent"`        // e.g., 5% max loss
-	AutoTrade      bool       `json:"auto_trade"`              // Enable autonomous trading
-	TradingHours   *TimeRange `json:"trading_hours,omitempty"` // Optional: only trade during certain hours
-	CreatedAt      time.Time  `json:"created_at"`
-	UpdatedAt      time.Time  `json:"updated_at"`
+	UserID          string    `json:"user_id"`
+	Assets          []string  `json:"assets"`           // ["BTCUSDT", "ETHUSDT"]
+	Style           string    `json:"style"`            // "day_trading", "swing", "hold"
+	RiskProfile     string    `json:"risk_profile"`     // "conservative", "moderate", "aggressive"
+	ProfitTarget    float64   `json:"profit_target"`    // e.g., 10% gain target
+	MaxLossPercent  float64   `json:"max_loss_percent"` // e.g., 5% max loss
+	AutoTrade       bool      `json:"auto_trade"`       // Enable autonomous trading
+	TradingHours    *TimeRange `json:"trading_hours,omitempty"` // Optional: only trade during certain hours
+	CreatedAt       time.Time `json:"created_at"`
+	UpdatedAt       time.Time `json:"updated_at"`
 }
 
 // TimeRange defines trading hours.
@@ -32,16 +32,16 @@ type TimeRange struct {
 
 // TradingAllocation represents a user's allocated trading budget.
 type TradingAllocation struct {
-	UserID         string     `json:"user_id"`
-	Amount         float64    `json:"amount"`          // Allocated amount in USD
-	StopLossFloor  float64    `json:"stop_loss_floor"` // Minimum portfolio value
-	RiskProfile    string     `json:"risk_profile"`    // Risk profile used
-	BinanceAccount string     `json:"binance_account"` // Binance account ID (if applicable)
-	Status         string     `json:"status"`          // "active", "closed", "suspended"
-	AllocatedAt    time.Time  `json:"allocated_at"`
-	ClosedAt       *time.Time `json:"closed_at,omitempty"`
-	FinalValue     *float64   `json:"final_value,omitempty"`
-	TotalPnL       *float64   `json:"total_pnl,omitempty"`
+	UserID          string    `json:"user_id"`
+	Amount          float64   `json:"amount"`           // Allocated amount in USD
+	StopLossFloor   float64   `json:"stop_loss_floor"`  // Minimum portfolio value
+	RiskProfile     string    `json:"risk_profile"`     // Risk profile used
+	BinanceAccount  string    `json:"binance_account"`  // Binance account ID (if applicable)
+	Status          string    `json:"status"`           // "active", "closed", "suspended"
+	AllocatedAt     time.Time `json:"allocated_at"`
+	ClosedAt        *time.Time `json:"closed_at,omitempty"`
+	FinalValue      *float64  `json:"final_value,omitempty"`
+	TotalPnL        *float64  `json:"total_pnl,omitempty"`
 }
 
 // DefaultTradingPreferences returns sensible defaults.
@@ -51,8 +51,8 @@ func DefaultTradingPreferences(userID string) *TradingPreferences {
 		Assets:         []string{"BTCUSDT", "ETHUSDT"},
 		Style:          "swing",
 		RiskProfile:    "moderate",
-		ProfitTarget:   0.10,  // 10% profit target
-		MaxLossPercent: 0.05,  // 5% max loss
+		ProfitTarget:   0.10, // 10% profit target
+		MaxLossPercent: 0.05, // 5% max loss
 		AutoTrade:      false, // Start with manual control
 		CreatedAt:      time.Now(),
 		UpdatedAt:      time.Now(),
@@ -66,13 +66,12 @@ func (tp *TradingPreferences) Validate() error {
 	}
 
 	validStyles := map[string]bool{
-		"hft":         true,
 		"day_trading": true,
 		"swing":       true,
 		"hold":        true,
 	}
 	if !validStyles[tp.Style] {
-		return fmt.Errorf("invalid style: %s (must be hft, day_trading, swing, or hold)", tp.Style)
+		return fmt.Errorf("invalid style: %s (must be day_trading, swing, or hold)", tp.Style)
 	}
 
 	validRiskProfiles := map[string]bool{
