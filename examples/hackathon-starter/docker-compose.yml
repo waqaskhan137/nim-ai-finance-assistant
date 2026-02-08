@@ -1,0 +1,24 @@
+services:
+  backend:
+    build:
+      context: ../..
+      dockerfile: examples/hackathon-starter/Dockerfile.backend
+    env_file:
+      - .env
+    environment:
+      PORT: "8080"
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build:
+      context: ../..
+      dockerfile: examples/hackathon-starter/frontend/Dockerfile
+    depends_on:
+      - backend
+    environment:
+      VITE_WS_URL: ws://localhost:8080/ws
+      VITE_API_URL: https://api.liminal.cash
+      VITE_PROXY_TARGET: http://backend:8080
+    ports:
+      - "5173:5173"
