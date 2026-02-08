@@ -1,0 +1,15 @@
+FROM golang:1.23-bookworm
+
+WORKDIR /workspace
+
+# Copy full repository so go.mod replace directives continue to work.
+COPY . .
+
+WORKDIR /workspace/examples/hackathon-starter
+
+# Prime dependencies in image build for faster startup.
+RUN go mod download
+
+EXPOSE 8080
+
+CMD ["go", "run", "."]
