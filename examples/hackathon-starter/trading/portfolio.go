@@ -290,6 +290,42 @@ func (p *Portfolio) ClosePosition(positionID string) (*Trade, error) {
 	return &trade, nil
 }
 
+// Withdraw removes available cash from the portfolio while enforcing risk floor constraints.
+func (p *Portfolio) Withdraw(amount float64) error {
+	if amount <= 0 {
+		return fmt.Errorf("withdrawal amount must be greater than 0")
+	}
+
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	if amount > p.CurrentCash {
+		return fmt.Errorf("insufficient available cash: have $%.2f, need $%.2f", p.CurrentCash, amount)
+	}
+
+	totalValue := p.CurrentCash
+	for _, pos := range p.Positions {
+		price, err := p.market.GetPrice(pos.Symbol)
+		if err != nil {
+			continue
+		}
+
+		if pos.Side == "long" {
+			totalValue += pos.Quantity * price
+		} else {
+			pnl := (pos.EntryPrice - price) * pos.Quantity
+			totalValue += (pos.Quantity * pos.EntryPrice) + pnl
+		}
+	}
+
+	if totalValue-amount < p.StopLossFloor {
+		return fmt.Errorf("withdrawal would breach stop-loss floor ($%.2f)", p.StopLossFloor)
+	}
+
+	p.CurrentCash -= amount
+	return nil
+}
+
 // CheckStopLoss checks if any positions have hit stop-loss and closes them.
 func (p *Portfolio) CheckStopLoss() []Trade {
 	p.mu.RLock()
